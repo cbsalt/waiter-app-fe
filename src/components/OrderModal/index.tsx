@@ -6,12 +6,22 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import { Actions, ModalBody, OrderDetails, Overlay } from './styles';
 
 interface OrderModalProps {
-  visible: boolean
-  order: OrderProps | null
-  onClose: () => void
+  visible: boolean;
+  order: OrderProps | null;
+  isLoading: boolean;
+  onClose: () => void;
+  onCancelOrder: () => Promise<void>;
+  onChangeOrdersStatus: () => void;
 }
 
-export function OrderModal({ visible, order, onClose }: OrderModalProps) {
+export function OrderModal({
+  visible,
+  order,
+  isLoading,
+  onClose,
+  onCancelOrder,
+  onChangeOrdersStatus
+}: OrderModalProps) {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
@@ -85,12 +95,25 @@ export function OrderModal({ visible, order, onClose }: OrderModalProps) {
         </OrderDetails>
 
         <Actions>
-          <button type='button' className='primary'>
-            <span>👨‍🍳</span>
-            <strong>Iniciar Produção</strong>
-          </button>
+          {order.status !== 'DONE' && (
+            <button
+              type='button'
+              className='primary'
+              disabled={isLoading}
+              onClick={onChangeOrdersStatus}
+            >
+              <span>
+                {order.status === 'WAITING' && '👨‍🍳'}
+                {order.status === 'IN_PRODUCTION' && '✅'}
+              </span>
+              <strong>
+                {order.status === 'WAITING' && 'Iniciar Produção'}
+                {order.status === 'IN_PRODUCTION' && 'Concluir Pedido'}
+              </strong>
+            </button>
+          )}
 
-          <button type='button' className='secondary'>
+          <button type='button' className='secondary' disabled={isLoading} onClick={onCancelOrder}>
             <strong>Cancelar Pedido</strong>
           </button>
         </Actions>
